@@ -1,51 +1,40 @@
+using System;
+
 namespace Basics
 {
     public class StateMachine
     {
-        private State currentState;
+        private IState state;
 
-        public bool InState<T>() { return currentState is T; }
+        public bool InState<T>() => state is T;
 
-        public void ChangeState(State _newState)
+        public void ChangeState(IState _newState)
         {
-            if (currentState != null)
-                currentState.OnFinish();
-            currentState = _newState;
-            currentState.machine = this;
-            currentState.OnStart();
+            state?.Finish();
+            if (_newState == null)
+                throw new NullReferenceException("Cannot change to a null state");
+            state = _newState;
+            state.Start();
         }
 
         public void Reset()
         {
-            if (currentState != null)
-                currentState.OnFinish();
-            currentState = null;
+            state?.Finish();
+            state = null;
         }
 
-        public void Update()
-        {
-            if (currentState != null)
-                currentState.OnUpdate();
-        }
+        public void Update() => state?.Update();
 
-        public bool IsFinished()
-        {
-            return currentState == null;
-        }
+        public bool IsFinished() => state == null;
     }
 
-    // OnUpdate -- Fired every frame of the game.
-    // OnStart  -- Fired once when the state is transitioned to.
-    // OnFinish -- Fired as the state concludes.
-    public class State
+    // Update -- Fired every frame of the game.
+    // Start  -- Fired once when the state is transitioned to.
+    // Finish -- Fired as the state concludes.
+    public interface IState
     {
-        public StateMachine machine;
-
-        public virtual void OnStart() { }
-        public virtual void OnUpdate() { }
-        public virtual void OnFinish() { }
-
-        // States may call ConcludeState on themselves to end their processing.
-        public void ConcludeState() { machine.Reset(); }
+        void Start();
+        void Update();
+        void Finish();
     }
 }

@@ -59,12 +59,17 @@ namespace Basics
             return batches;
         }
 
-        public static void ForEach<T>(this HashSet<T> set, Action<T> func)
+        public static void ForEach<T>(this HashSet<T> _set, Action<T> _func)
         {
-            foreach (var o in set)
-                func(o);
+            foreach (var o in _set)
+                _func(o);
         }
-        
+
+        public static void AddRange<T>(this HashSet<T> _set, IEnumerable<T> _range)
+        {
+            foreach (var o in _range)
+                _set.Add(o);
+        }
 
         #region Clamp / Max / Min
         public static void Clamp<T>(this List<T> list, T min, T max)
@@ -73,8 +78,8 @@ namespace Basics
                 list[i] = Clamp(list[i], min, max);
         }
         public static T Clamp<T>(T value, T min, T max) => Max(Min(value, max), min);
-        public static T Max<T>(params T[] values) => values.ToList().Max();
-        public static T Min<T>(params T[] values) => values.ToList().Min();
+        public static T Max<T>(params T[] values) => values.Max();
+        public static T Min<T>(params T[] values) => values.Min();
         #endregion
 
         #region Math
@@ -166,13 +171,19 @@ namespace Basics
                 list[n] = value;
             }
         }
-
+        public static IList<T> Shuffled<T>(this IList<T> list)
+        {
+            list.Shuffle();
+            return list;
+        }
 
         private static Random random = new Random();
         public static double RandomDouble() => random.NextDouble();
         public static int RandomInt() => random.Next();
+        public static int RandomInt(int _max) => random.Next(0, _max);
         public static int RandomInt(int _min, int _max) => random.Next(_min, _max);
-
+        public static double RandomAngleRad() => RandomDouble() * Math.PI * 2;
+        public static double RandomAngleDeg() => RandomDouble() * 360;
 
         public static void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue value)
         {
@@ -180,6 +191,25 @@ namespace Basics
                 dict.Add(key, value);
             else
                 dict[key] = value;
+        }
+
+        public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TValue> addFunc = null)
+        {
+            if (!dict.ContainsKey(key))
+            {
+                if (addFunc == null)
+                    dict[key] = default(TValue);
+                else
+                    dict[key] = addFunc();
+            }
+            return dict[key];
+        }
+
+        public static TValue GetOrAddNew<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) where TValue : new()
+        {
+            if (!dict.ContainsKey(key))
+                dict[key] = new TValue();
+            return dict[key];
         }
     }
 }

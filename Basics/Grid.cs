@@ -12,7 +12,8 @@ namespace Basics
         public readonly int Height;
         protected List<List<T>> objects;
 
-        public Grid(int _width, int _height)
+        public Grid(int _width, int _height) : this(_width, _height, (int x, int y) => default(T)) {}
+        public Grid(int _width, int _height, Func<int,int,T> _tileGenerator)
         {
             Width = _width;
             Height = _height;
@@ -22,7 +23,7 @@ namespace Basics
             {
                 objects.Add(new List<T>());
                 for (int y = 0; y < Height; y++)
-                    objects[x].Add(default(T));
+                    objects[x].Add(_tileGenerator.Invoke(x, y));
             }
         }
         public Grid(List<List<T>> _objects)
@@ -109,6 +110,10 @@ namespace Basics
             return neighbors;
         }
 
+        /// <summary>
+        /// Use ForEachXY instead of ForEachYX if possible; it is faster.
+        /// </summary>
+        /// <param name="action"></param>
         public void ForEachXY(Action<T> action) => ForEachX(x => x.ForEach(xy => action(xy)));
         public void ForEachYX(Action<T> action) => ForEachY(x => x.ForEach(xy => action(xy)));
         public void ForEachX(Action<List<T>> action) => objects.ForEach(x => action(x));
