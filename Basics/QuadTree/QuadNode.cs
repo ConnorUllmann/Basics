@@ -4,61 +4,49 @@ using System.Numerics;
 
 namespace Basics.QuadTree
 {
-    public class QuadNode<T>
+    public class QuadNode<T> : Rectangle
     {
-
-        public QuadNode(float _x, float _y, float _width, float _height, QuadTree<T> _tree = null)
+        public QuadNode(float _x, float _y, float _width, float _height, QuadTree<T> _tree) 
+            : base(_x, _y, _width, _height)
         {
-            init(_x, _y, _width, _height, (_tree == null && this is QuadTree<T> ? this as QuadTree<T> : _tree));
+            init(_x, _y, _width, _height, _tree);
         }
 
-        protected const int MIN_NODE_DIMENSION = 2;
-        protected const int MAX_OBJECTS_BEFORE_SPLIT = 5;
-        public static Queue<QuadNode<T>> pool = new Queue<QuadNode<T>>();
+        private static Queue<QuadNode<T>> pool = new Queue<QuadNode<T>>();
 
-        protected List<int> objectIndices;
-        protected List<QuadNode<T>> children;
-
-        private float x;
-        private float y;
-        private float width;
-        private float height;
-        protected QuadTree<T> tree;
-
-        /**
-            * Returns true if this node is a leaf node (has no children and holds object indices).
-            */
-        protected bool isLeaf { get { return children == null || children.Count <= 0; } }
-
-        /**
-            * Initializes the variables of this node.
-            * @param	_tree		the tree this node belongs to.
-            * @param	_x			the x-coordinate of this node. (upper-left corner).
-            * @param	_y			the y-coordinate of this node. (upper-left corner)
-.		* @param	_width		the width of this node.
-            * @param	_height		the height of this node.
-            */
-        protected void init(float _x, float _y, float _width, float _height, QuadTree<T> _tree)
+        private QuadTree<T> tree;
+        private HashSet<int> objectIndices;
+        private List<QuadNode<T>> children;
+        private bool hasChildren => children?.Count > 0;
+        
+        /// <summary>
+        /// Initializes the variables of this node.
+        /// </summary>
+        /// <param name="_x">x-coordinate of this node (corner)</param>
+        /// <param name="_y">y-coordinate of this node (corner)</param>
+        /// <param name="_width">width of this node.</param>
+        /// <param name="_height">height of this node.</param>
+        private void init(float _x, float _y, float _width, float _height, QuadTree<T> _tree)
         {
-            x = _x;
-            y = _y;
-            width = _width;
-            height = _height;
+            X = _x;
+            Y = _y;
+            W = _width;
+            H = _height;
             tree = _tree;
-            objectIndices = null;
+            objectIndices = new HashSet<int>();
             children = null;
         }
 
-        /**
-            * Returns a pooled node. Use this instead of "new Node()"
-            * @param	_tree		the tree this node belongs to.
-            * @param	_x			the x-coordinate of this node. (upper-left corner)
-            * @param	_y			the y-coordinate of this node. (upper-left corner)
-            * @param	_width		the width of this node.
-            * @param	_height		the height of this node.
-            * @return returns a node from the pool (or created new if the pool is empty).
-            */
-        protected static QuadNode<T> getNode(QuadTree<T> _tree, float _x, float _y, float _width, float _height)
+        /// <summary>
+        /// Returns a pooled node. Use this instead of "new Node()"
+        /// </summary>
+        /// <param name="_tree">tree this node belongs to.</param>
+        /// <param name="_x">x-coordinate of this node (corner)</param>
+        /// <param name="_y">y-coordinate of this node (corner)</param>
+        /// <param name="_width">width of this node.</param>
+        /// <param name="_height">height of this node.</param>
+        /// <returns>A node from the pool (or a new one if the pool is empty)</returns>
+        private static QuadNode<T> getNode(QuadTree<T> _tree, float _x, float _y, float _width, float _height)
         {
             if (pool.Count <= 0)
                 return new QuadNode<T>(_x, _y, _width, _height, _tree);
@@ -67,157 +55,110 @@ namespace Basics.QuadTree
             n.init(_x, _y, _width, _height, _tree);
             return n;
         }
-
-        /**
-            * Puts this node into the pool. (Does NOT remove from the QuadTree).
-            */
-        public void addToPool()
+        
+        /// <summary>
+        /// Puts this node and its children into the pool. (Does NOT remove from the QuadTree).
+        /// </summary>
+        public void Destroy()
         {
             pool.Enqueue(this);
+            if (hasChildren)
+                children.ForEach(o => o.Destroy());
         }
-
-        /**
-        * Splits this node into 4 nodes of equal size. Also passes held indices down to the children.
-        */
-        protected void split()
+        
+        /// <summary>
+        /// Splits this node into 4 nodes of equal size. Also passes object indices down to the new children.
+        /// </summary>
+        private void split()
         {
-            var w2 = width / 2f;
-            var h2 = height / 2f;
-            children = new List<QuadNode<T>>();
-            children.Add(getNode(tree, x, y, w2, h2));
-            children.Add(getNode(tree, x + w2, y, w2, h2));
-            children.Add(getNode(tree, x, y + h2, w2, h2));
-            children.Add(getNode(tree, x + w2, y + h2, w2, h2));
-            if (objectIndices != null)
+            var w2 = W / 2f;
+            var h2 = H / 2f;
+            children = new List<QuadNode<T>>
             {
-                for (int i = 0; i < children.Count; i++)
-                {
-                    for (int j = 0; j < objectIndices.Count; j++)
-                    {
-                        var k = objectIndices[j];
-                        children[i].Insert(tree.objects[k], tree.positions[k].X, tree.positions[k].Y);
-                    }
-                }
-                objectIndices = null;
-            }
-        }
-
-        protected bool collidesPoint(Vector2 p)
-        {
-            return p.X >= x &&
-                   p.Y >= y &&
-                   p.X < x + width &&
-                   p.Y < y + height;
-        }
-        protected bool collidesRect(float tx, float ty, float tw, float th)
-        {
-            return x + width > tx &&
-                   y + height > ty &&
-                   x < tx + tw &&
-                   y < ty + th;
-        }
-        protected bool insideRect(float tx, float ty, float tw, float th)
-        {
-            return x >= tx &&
-                   y >= ty &&
-                   x + width < tx + tw &&
-                   y + height < ty + th;
-        }
-
-        /**
-            * Adds the object _o to this node (or its children, should it split) if it is within this node's bounds.
-            * @param	_o		object to add.
-            */
-        public void Insert(T _o, float _x, float _y)
-        {
-            if (collidesPoint(new Vector2(_x, _y)))
+                getNode(tree, X, Y, w2, h2),
+                getNode(tree, X + w2, Y, w2, h2),
+                getNode(tree, X, Y + h2, w2, h2),
+                getNode(tree, X + w2, Y + h2, w2, h2),
+            };
+            foreach (var objectIndex in objectIndices)
             {
-                if (!isLeaf)
-                {
-                    for (int i = 0; i < children.Count; i++)
-                    {
-                        children[i].Insert(_o, _x, _y);
-                    }
-                }
-                else
-                {
-                    var t = tree.addObject(_o, _x, _y);
-                    if (objectIndices == null)
-                        objectIndices = new List<int>();
-                    objectIndices.Add(t);
-                    if (objectIndices.Count > MAX_OBJECTS_BEFORE_SPLIT && width / 2 >= MIN_NODE_DIMENSION)
-                    {
-                        split();
-                    }
-                }
+                var obj = tree.Objects[objectIndex];
+                var rect = tree.Rectangles[objectIndex];
+                foreach (var child in children)
+                    child.Insert(obj, rect);
             }
+            objectIndices = null;
         }
+        
+        /// <summary>
+        /// Adds the object to this node (or its children, should it split) if it is within this node's bounds.
+        /// </summary>
+        /// <param name="_o">object to add</param>
+        /// <param name="_r">rectangle to use for collisions with the object</param>
+        public void Insert(T _o, Rectangle _r)
+        {
+            if (!Collides(_r))
+                return;
 
-        /**
-            * Gathers up all unique object indexes for objects that collide with object _o's queryRectangle.
-            * @param	_o		object that is checking collisions.
-            * @param	_v		list of indices to add to.
-            */
-        public void queryPoint(Vector2 p, ref List<int> _v)
-        {
-            if (collidesPoint(p))
-            {
-                if (isLeaf)
-                {
-                    if (objectIndices != null)
-                    {
-                        for (int i = 0; i < objectIndices.Count; i++)
-                            _v.Add(objectIndices[i]); //pushUniqueSorted(objectIndices[i], ref _v);
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < children.Count; i++)
-                        children[i].queryPoint(p, ref _v);
-                }
-            }
-        }
-        public void queryRect(float x, float y, float w, float h, ref List<int> _v)
-        {
-            if (collidesRect(x, y, w, h))
-            {
-                if (isLeaf)
-                {
-                    if (objectIndices != null)
-                    {
-                        for (int i = 0; i < objectIndices.Count; i++)
-                            //if(!_v.Contains(objectIndices[i])) //Unique! Not necessarily important
-                            _v.Add(objectIndices[i]);//pushUniqueSorted(objectIndices[i], ref _v);
-                    }
-                }
-                else if (insideRect(x, y, w, h))
-                {
-                    GetAllObjectsInsideNode(ref _v);
-                }
-                else
-                {
-                    for (int i = 0; i < children.Count; i++)
-                        children[i].queryRect(x, y, w, h, ref _v);
-                }
-            }
-        }
-
-        public void GetAllObjectsInsideNode(ref List<int> _v)
-        {
-            if (isLeaf)
-            {
-                if (objectIndices != null)
-                {
-                    for (int i = 0; i < objectIndices.Count; i++)
-                        //if(!_v.Contains(objectIndices[i])) //Unique! Not necessarily important
-                        _v.Add(objectIndices[i]);
-                }
-            }
+            if (hasChildren)
+                children.ForEach(c => c.Insert(_o, _r));
             else
             {
-                for (int i = 0; i < children.Count; i++)
-                    children[i].GetAllObjectsInsideNode(ref _v);
+                var index = tree.GetIndex(_o, _r);
+                objectIndices.Add(index);
+                if (objectIndices.Count > tree.MaxObjectsPerNode && W / 2 >= tree.MinNodeSideLength)
+                    split();
             }
+        }
+        
+        /// <summary>
+        /// Gathers up all unique object indexes for objects that collide with the given point
+        /// </summary>
+        /// <param name="_p">point that is being checked for collisions</param>
+        /// <param name="_v">list of object indices to add to</param>
+        public void QueryPoint(Vector2 _p, HashSet<int> _v) => QueryPoint(_p.X, _p.Y, _v);
+        public void QueryPoint(float _x, float _y, HashSet<int> _v)
+        {
+            if (!Collides(_x, _y))
+                return;
+
+            if (!hasChildren)
+                _v.AddRange(objectIndices);
+            else
+                foreach(var child in children)
+                    child.QueryPoint(_x, _y, _v);
+        }
+        
+        /// <summary>
+        /// Gathers up all unique object indexes for objects that collide with the given rectangle
+        /// </summary>
+        /// <param name="_r">rectangle that is being checked for collisions</param>
+        /// <param name="_v">list of object indices to add to</param>
+        public void QueryRect(Rectangle _r, HashSet<int> _v) => QueryRect(_r.X, _r.Y, _r.W, _r.H, _v);
+        public void QueryRect(float _x, float _y, float _w, float _h, HashSet<int> _v)
+        {
+            if (!Collides(_x, _y, _w, _h))
+                return;
+
+            if (!hasChildren)
+                _v.AddRange(objectIndices);
+            else
+                foreach(var child in children)
+                    child.QueryRect(_x, _y, _w, _h, _v);
+        }
+
+        public HashSet<Rectangle> GetRectangles()
+        {
+            var result = new HashSet<Rectangle>();
+            GetRectangles_Helper(result);
+            return result;
+        }
+        private void GetRectangles_Helper(HashSet<Rectangle> _rectangles)
+        {
+            if (hasChildren)
+                children.ForEach(o => o.GetRectangles_Helper(_rectangles));
+            else
+                _rectangles.Add(this);
         }
     }
 }
