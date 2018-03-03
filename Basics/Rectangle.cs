@@ -4,14 +4,13 @@ using System.Text;
 
 namespace Basics
 {
-    public class Rectangle
+    public struct Rectangle
     {
         public float X;
         public float Y;
         public float W;
         public float H;
-
-        public Rectangle() { }
+        
         public Rectangle(Rectangle _r) : this(_r.X, _r.Y, _r.W, _r.H) { }
         public Rectangle(float _x, float _y, float _w, float _h)
         {

@@ -4,10 +4,15 @@ using System.Numerics;
 
 namespace Basics.QuadTree
 {
-    public class QuadNode<T> : Rectangle
+    public class QuadNode<T>
     {
+        private Rectangle rectangle;
+        public float X => rectangle.X;
+        public float Y => rectangle.Y;
+        public float W => rectangle.W;
+        public float H => rectangle.H;
+
         public QuadNode(float _x, float _y, float _width, float _height, QuadTree<T> _tree) 
-            : base(_x, _y, _width, _height)
         {
             init(_x, _y, _width, _height, _tree);
         }
@@ -28,10 +33,7 @@ namespace Basics.QuadTree
         /// <param name="_height">height of this node.</param>
         private void init(float _x, float _y, float _width, float _height, QuadTree<T> _tree)
         {
-            X = _x;
-            Y = _y;
-            W = _width;
-            H = _height;
+            rectangle = new Rectangle(_x, _y, _width, _height);
             tree = _tree;
             objectIndices = new HashSet<int>();
             children = null;
@@ -71,14 +73,14 @@ namespace Basics.QuadTree
         /// </summary>
         private void split()
         {
-            var w2 = W / 2f;
-            var h2 = H / 2f;
+            var w2 = rectangle.W / 2f;
+            var h2 = rectangle.H / 2f;
             children = new List<QuadNode<T>>
             {
-                getNode(tree, X, Y, w2, h2),
-                getNode(tree, X + w2, Y, w2, h2),
-                getNode(tree, X, Y + h2, w2, h2),
-                getNode(tree, X + w2, Y + h2, w2, h2),
+                getNode(tree, rectangle.X, rectangle.Y, w2, h2),
+                getNode(tree, rectangle.X + w2, rectangle.Y, w2, h2),
+                getNode(tree, rectangle.X, rectangle.Y + h2, w2, h2),
+                getNode(tree, rectangle.X + w2, rectangle.Y + h2, w2, h2),
             };
             foreach (var objectIndex in objectIndices)
             {
@@ -97,7 +99,7 @@ namespace Basics.QuadTree
         /// <param name="_r">rectangle to use for collisions with the object</param>
         public void Insert(T _o, Rectangle _r)
         {
-            if (!Collides(_r))
+            if (!rectangle.Collides(_r))
                 return;
 
             if (hasChildren)
@@ -106,7 +108,7 @@ namespace Basics.QuadTree
             {
                 var index = tree.GetIndex(_o, _r);
                 objectIndices.Add(index);
-                if (objectIndices.Count > tree.MaxObjectsPerNode && W / 2 >= tree.MinNodeSideLength)
+                if (objectIndices.Count > tree.MaxObjectsPerNode && rectangle.W / 2 >= tree.MinNodeSideLength)
                     split();
             }
         }
@@ -119,7 +121,7 @@ namespace Basics.QuadTree
         public void QueryPoint(Vector2 _p, HashSet<int> _v) => QueryPoint(_p.X, _p.Y, _v);
         public void QueryPoint(float _x, float _y, HashSet<int> _v)
         {
-            if (!Collides(_x, _y))
+            if (!rectangle.Collides(_x, _y))
                 return;
 
             if (!hasChildren)
@@ -137,7 +139,7 @@ namespace Basics.QuadTree
         public void QueryRect(Rectangle _r, HashSet<int> _v) => QueryRect(_r.X, _r.Y, _r.W, _r.H, _v);
         public void QueryRect(float _x, float _y, float _w, float _h, HashSet<int> _v)
         {
-            if (!Collides(_x, _y, _w, _h))
+            if (!rectangle.Collides(_x, _y, _w, _h))
                 return;
 
             if (!hasChildren)
@@ -158,7 +160,7 @@ namespace Basics.QuadTree
             if (hasChildren)
                 children.ForEach(o => o.GetRectangles_Helper(_rectangles));
             else
-                _rectangles.Add(this);
+                _rectangles.Add(rectangle);
         }
     }
 }
