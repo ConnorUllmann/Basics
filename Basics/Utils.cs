@@ -211,5 +211,11 @@ namespace Basics
                 dict[key] = new TValue();
             return dict[key];
         }
+
+        public static List<T> Reversed<T>(this List<T> list)
+        {
+            list.Reverse();
+            return list;
+        }
     }
 }
