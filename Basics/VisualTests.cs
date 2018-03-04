@@ -75,15 +75,15 @@ namespace Basics
 
             var grid = new ConsoleGrid(objects);
             grid.ForEachYX(tile => tile.DisplayValue = tile.Solid ? "11" : "  ");
-            List<Vector2> objs = new List<Vector2>();
+            List<(int X, int Y)> objs = new List<(int, int)>();
             for (var i = 0; i < 4; i+=2)
             {
-                Vector2 a, b;
+                (int X, int Y) a, b;
                 do
                 {
-                    a = new Vector2(random.Next(0, width), random.Next(0, height));
-                    b = new Vector2(random.Next(0, width), random.Next(0, height));
-                } while (Utils.Distance(a, b) <= 10);
+                    a = (random.Next(0, width), random.Next(0, height));
+                    b = (random.Next(0, width), random.Next(0, height));
+                } while (Utils.Distance(a.X, a.Y, b.X, b.Y) <= 10);
                 objs.Add(a);
                 objs.Add(b);
                 var second = i == 2;
