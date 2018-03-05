@@ -49,8 +49,7 @@ namespace Basics
                py >= ry &&
                px < rx + rw &&
                py < ry + rh;
-
-
+        
         /// <summary>
         /// Checks if this rectangle collides with any of the given rectangles.
         /// </summary>
@@ -147,6 +146,8 @@ namespace Basics
             W = _rectangle.W;
             H = _rectangle.H;
         }
+
+        public override string ToString() => $"[({X}, {Y}) {W}x{H}]";
     }
 
     public static class RectangleExtensions
