@@ -147,6 +147,19 @@ namespace Basics
             H = _rectangle.H;
         }
 
+        /// <summary>
+        /// Generates set of coordinates corresponding to the rectangle's corners.
+        /// </summary>
+        /// <returns>(x,y) coordinates of corners of the rectangle in counter-clockwise order.</returns>
+        public List<(float X, float Y)> ToVertices()
+            => new List<(float X, float Y)>
+            {
+                (X, Y),
+                (X + W, Y),
+                (X + W, Y + H),
+                (X, Y + H)
+            };
+
         public override string ToString() => $"[({X}, {Y}) {W}x{H}]";
     }
 
