@@ -109,12 +109,10 @@ namespace Basics
         public static float ManhattanDistance(float x1, float y1, float x2, float y2) => Math.Abs(x2 - x1) + Math.Abs(y2 - y1);
         public static int ManhattanDistance(int x1, int y1, int x2, int y2) => Math.Abs(x2 - x1) + Math.Abs(y2 - y1);
         public static long ManhattanDistance(long x1, long y1, long x2, long y2) => Math.Abs(x2 - x1) + Math.Abs(y2 - y1);
-        public static float Distance(Vector2 start, Vector2 finish) => EuclideanDistance(start, finish);
         public static float Distance(float x1, float y1, float x2, float y2) => EuclideanDistance(x1, y1, x2, y2);
         public static float Distance(int x1, int y1, int x2, int y2) => EuclideanDistance(x1, y1, x2, y2);
         public static float Distance(long x1, long y1, long x2, long y2) => EuclideanDistance(x1, y1, x2, y2);
         public static double Distance(double x1, double y1, double x2, double y2) => EuclideanDistance(x1, y1, x2, y2);
-        public static float EuclideanDistance(Vector2 start, Vector2 finish) => (float)EuclideanDistance(start.X, start.Y, finish.X, finish.Y);
         public static float EuclideanDistance(float x1, float y1, float x2, float y2) => (float)EuclideanDistance((double)x1, y1, x2, y2);
         public static float EuclideanDistance(int x1, int y1, int x2, int y2) => (float)EuclideanDistance((double)x1, y1, x2, y2);
         public static float EuclideanDistance(long x1, long y1, long x2, long y2) => (float)EuclideanDistance((double)x1, y1, x2, y2);

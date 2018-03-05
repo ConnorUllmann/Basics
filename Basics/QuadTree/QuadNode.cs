@@ -118,7 +118,6 @@ namespace Basics.QuadTree
         /// </summary>
         /// <param name="_p">point that is being checked for collisions</param>
         /// <param name="_v">list of object indices to add to</param>
-        public void QueryPoint(Vector2 _p, HashSet<int> _v) => QueryPoint(_p.X, _p.Y, _v);
         public void QueryPoint(float _x, float _y, HashSet<int> _v)
         {
             if (!rectangle.Collides(_x, _y))

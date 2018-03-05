@@ -102,10 +102,10 @@ namespace Basics.QuadTree
         /// </summary>
         /// <param name="_p">The point being tested for collisions</param>
         /// <returns>set of objects which could potentially collide with the given point</returns>
-        public HashSet<T> QueryPoint(Vector2 _p)
+        public HashSet<T> QueryPoint(float _x, float _y)
         {
             var indices = new HashSet<int>();
-            root.QueryPoint(_p, indices);
+            root.QueryPoint(_x, _y, indices);
             return objectsFromIndices(indices);
         }
 

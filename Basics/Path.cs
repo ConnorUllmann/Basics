@@ -173,9 +173,7 @@ namespace Basics
                 return null;
             }
         }
-
-        public static List<T> FindPath<T>(Grid<T> _grid, Vector2 start, Vector2 target, bool _canMoveDiagonally = true, DistanceEstimationAlgorithm _distanceType = DistanceEstimationAlgorithm.Euclidean) where T : ISolidTile =>
-            FindPath(_grid, start.X, start.Y, target.X, target.Y, _canMoveDiagonally, _distanceType);
+        
         public static List<T> FindPath<T>(Grid<T> _grid, float xstart, float ystart, float xtarget, float ytarget, bool _canMoveDiagonally = true, DistanceEstimationAlgorithm _distanceType = DistanceEstimationAlgorithm.Euclidean) where T : ISolidTile =>
             FindPath(_grid, (int)xstart, (int)ystart, (int)xtarget, (int)ytarget, _canMoveDiagonally, _distanceType);
         public static List<T> FindPath<T>(Grid<T> _grid, int xstart, int ystart, int xtarget, int ytarget, bool _canMoveDiagonally = true, DistanceEstimationAlgorithm _distanceType = DistanceEstimationAlgorithm.Euclidean) where T : ISolidTile =>

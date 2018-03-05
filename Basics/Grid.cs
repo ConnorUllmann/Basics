@@ -115,6 +115,10 @@ namespace Basics
         /// </summary>
         /// <param name="action"></param>
         public void ForEachXY(Action<T> action) => ForEachX(x => x.ForEach(xy => action(xy)));
+        /// <summary>
+        /// Use ForEachXY instead of ForEachYX if possible; it is faster.
+        /// </summary>
+        /// <param name="action"></param>
         public void ForEachYX(Action<T> action) => ForEachY(x => x.ForEach(xy => action(xy)));
         public void ForEachX(Action<List<T>> action) => objects.ForEach(x => action(x));
         public void ForEachY(Action<List<T>> action)
