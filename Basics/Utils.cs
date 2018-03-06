@@ -174,7 +174,8 @@ namespace Basics
 
         #endregion
 
-        public static float EquilateralAltitude(float _sideLength) => (float)(Math.Sqrt(3) / 2 * _sideLength);
+        private static readonly float EquilateralAltitudeCoefficient = (float)(Math.Sqrt(3) / 2);
+        public static float EquilateralAltitude(float _sideLength) => EquilateralAltitudeCoefficient * _sideLength;
 
         public static bool IsEven(this int value) => value % 2 == 0;
         public static bool IsOdd(this int value) => value % 2 != 0;
