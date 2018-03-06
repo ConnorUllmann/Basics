@@ -358,6 +358,42 @@ namespace Basics.Test
         {
             Assert.Equal(0, Utils.EuclideanDistance(1, -2, 1, -2));
         }
+
+        private class TestPosition : IPosition
+        {
+            public float X { get; set; }
+            public float Y { get; set; }
+
+            public TestPosition(float _x, float _y)
+            {
+                X = _x;
+                Y = _y;
+            }
+        }
+
+        [Theory]
+        [InlineData(100, 0, 10, 0)]
+        [InlineData(0, 100, 0, 10)]
+        [InlineData(-100, 0, -10, 0)]
+        [InlineData(0, -100, 0, -10)]
+        [InlineData(1, 4, 1, 4)]
+        [InlineData(0, 0, 1, 4)]
+        [InlineData(3, 5, 1, 4)]
+        [InlineData(-9, 2, -10, 0)]
+        public void NearestTo_ReturnSucceed(float x, float y, float xexpected, float yexpected)
+        {
+            var position = new List<IPosition>
+            {
+                new TestPosition(10, 0),
+                new TestPosition(0, 10),
+                new TestPosition(-10, 0),
+                new TestPosition(0, -10),
+                new TestPosition(1, 4)
+            }.NearestTo(new TestPosition(x, y));
+
+            Assert.Equal(xexpected, position.X);
+            Assert.Equal(yexpected, position.Y);
+        }
         #endregion
 
         #region PrependToLength
@@ -449,7 +485,7 @@ namespace Basics.Test
         }
         #endregion
 
-        #region
+        #region AddOrUpdate
         [Fact] public void AddOrUpdate_ModifySucceed_SingleAdd()
         {
             var dict = new Dictionary<int, int>();

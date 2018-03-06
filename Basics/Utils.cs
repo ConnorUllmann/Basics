@@ -146,26 +146,24 @@ namespace Basics
         /// <summary>
         /// Finds the position in the group which is closest to the target position
         /// </summary>
-        /// <typeparam name="T">IPosition</typeparam>
+        /// <typeparam name="T">type of element in group</typeparam>
+        /// <typeparam name="T">type of target</typeparam>
         /// <param name="list">group of positions to compare</param>
         /// <param name="target">position to compare against</param>
         /// <returns></returns>
-        public static T NearestTo<T>(this IEnumerable<T> list, T target) where T : IPosition
+        public static T NearestTo<T, U>(this IEnumerable<T> list, U target) 
+            where T : IPosition 
+            where U : IPosition
         {
             float? minDistance = null;
             T minObject = default;
             foreach (var obj in list)
             {
-                //Don't need to compare actual distances (which require a Math.Sqrt call)
+                //Don't need to compare actual distances (which would require a Math.Sqrt call)
                 var distance = obj.DistanceSquared(target);
-                if (!minDistance.HasValue)
+                if (!minDistance.HasValue || distance < minDistance.Value)
                 {
                     minDistance = distance;
-                    minObject = obj;
-                }
-                else
-                {
-                    minDistance = Min(minDistance.Value, distance);
                     minObject = obj;
                 }
             }
@@ -181,6 +179,12 @@ namespace Basics
         public static bool IsOdd(this int value) => value % 2 != 0;
 
         #endregion
+
+        public static void Repetitions(this int _count, Action _action)
+        {
+            for (var i = 0; i < _count; i++)
+                _action();
+        }
 
         public static void Log(string message, bool newline = true, ConsoleColor color = ConsoleColor.White)
         {
