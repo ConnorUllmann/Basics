@@ -109,6 +109,8 @@ namespace Basics
         public static (float X, float Y) Midpoint(this IPosition a, IPosition b) => Midpoint(a.X, a.Y, b.X, b.Y);
         public static (float X, float Y) Midpoint(int x1, int y1, int x2, int y2) => Midpoint(x1, y1, x2, y2);
         public static (float X, float Y) Midpoint(long x1, long y1, long x2, long y2) => Midpoint(x1, y1, x2, y2);
+        public static (float X, float Y) Midpoint((float X, float Y) a, (float X, float Y) b) => Midpoint(a.X, a.Y, b.X, b.Y);
+        public static (float X, float Y) Midpoint((float X, float Y) a, float x1, float y1) => Midpoint(a.X, a.Y, x1, y1);
         public static (float X, float Y) Midpoint(float x1, float y1, float x2, float y2) => ((x1 + x2) / 2, (y1 + y2) / 2);
 
         public static float ManhattanDistance(this IPosition a, IPosition b) => ManhattanDistance(a.X, a.Y, b.X, b.Y);
