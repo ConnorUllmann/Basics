@@ -5,10 +5,10 @@ using System.Text;
 
 namespace Basics
 {
-    public struct Rectangle
+    public struct Rectangle : IPosition
     {
-        public float X;
-        public float Y;
+        public float X { get; set; }
+        public float Y { get; set; }
         public float W;
         public float H;
         

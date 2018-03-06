@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Basics.QuadTree
 {
-    public class QuadNode<T>
+    public class QuadNode<T> : IPosition
     {
         private Rectangle rectangle;
         public float X => rectangle.X;
