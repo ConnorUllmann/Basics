@@ -106,13 +106,6 @@ namespace Basics
 
         #region Distance
 
-        public static (float X, float Y) Midpoint(this IPosition a, IPosition b) => Midpoint(a.X, a.Y, b.X, b.Y);
-        public static (float X, float Y) Midpoint(int x1, int y1, int x2, int y2) => Midpoint(x1, y1, x2, y2);
-        public static (float X, float Y) Midpoint(long x1, long y1, long x2, long y2) => Midpoint(x1, y1, x2, y2);
-        public static (float X, float Y) Midpoint((float X, float Y) a, (float X, float Y) b) => Midpoint(a.X, a.Y, b.X, b.Y);
-        public static (float X, float Y) Midpoint((float X, float Y) a, float x1, float y1) => Midpoint(a.X, a.Y, x1, y1);
-        public static (float X, float Y) Midpoint(float x1, float y1, float x2, float y2) => ((x1 + x2) / 2, (y1 + y2) / 2);
-
         public static float ManhattanDistance(this IPosition a, IPosition b) => ManhattanDistance(a.X, a.Y, b.X, b.Y);
         public static double ManhattanDistance(double x1, double y1, double x2, double y2) => Math.Abs(x2 - x1) + Math.Abs(y2 - y1);
         public static float ManhattanDistance(float x1, float y1, float x2, float y2) => Math.Abs(x2 - x1) + Math.Abs(y2 - y1);
@@ -125,17 +118,60 @@ namespace Basics
         public static float Distance(long x1, long y1, long x2, long y2) => EuclideanDistance(x1, y1, x2, y2);
         public static double Distance(double x1, double y1, double x2, double y2) => EuclideanDistance(x1, y1, x2, y2);
 
-        public static float EuclideanDistance(this IPosition a, IPosition b) => EuclideanDistance(a.X, a.Y, b.X, b.Y);
+        public static float DistanceSquared(this IPosition a, IPosition b) => EuclideanDistanceSquared(a.X, a.Y, b.X, b.Y);
+        public static float DistanceSquared(float x1, float y1, float x2, float y2) => EuclideanDistanceSquared(x1, y1, x2, y2);
+        public static float DistanceSquared(int x1, int y1, int x2, int y2) => EuclideanDistanceSquared(x1, y1, x2, y2);
+        public static float DistanceSquared(long x1, long y1, long x2, long y2) => EuclideanDistanceSquared(x1, y1, x2, y2);
+        public static double DistanceSquared(double x1, double y1, double x2, double y2) => EuclideanDistanceSquared(x1, y1, x2, y2);
+
+        public static float EuclideanDistance(this IPosition a, IPosition b) => (float)EuclideanDistance((double)a.X, a.Y, b.X, b.Y);
         public static float EuclideanDistance(float x1, float y1, float x2, float y2) => (float)EuclideanDistance((double)x1, y1, x2, y2);
         public static float EuclideanDistance(int x1, int y1, int x2, int y2) => (float)EuclideanDistance((double)x1, y1, x2, y2);
         public static float EuclideanDistance(long x1, long y1, long x2, long y2) => (float)EuclideanDistance((double)x1, y1, x2, y2);
-        public static double EuclideanDistance(double x1, double y1, double x2, double y2)
-        {
-            var dx = x2 - x1;
-            var dy = y2 - y1;
-            return Math.Sqrt(dx * dx + dy * dy);
-        }
+        public static double EuclideanDistance(double x1, double y1, double x2, double y2) => Math.Sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+
+        public static float EuclideanDistanceSquared(this IPosition a, IPosition b) => (float)EuclideanDistanceSquared((double)a.X, a.Y, b.X, b.Y);
+        public static float EuclideanDistanceSquared(float x1, float y1, float x2, float y2) => (float)EuclideanDistanceSquared((double)x1, y1, x2, y2);
+        public static float EuclideanDistanceSquared(long x1, long y1, long x2, long y2) => (float)EuclideanDistanceSquared((double)x1, y1, x2, y2);
+        public static float EuclideanDistanceSquared(int x1, int y1, int x2, int y2) => (float)EuclideanDistanceSquared((double)x1, y1, x2, y2);
+        public static double EuclideanDistanceSquared(double x1, double y1, double x2, double y2) => (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
         
+        public static (float X, float Y) Midpoint(this IPosition a, IPosition b) => Midpoint(a.X, a.Y, b.X, b.Y);
+        public static (float X, float Y) Midpoint(int x1, int y1, int x2, int y2) => Midpoint(x1, y1, x2, y2);
+        public static (float X, float Y) Midpoint(long x1, long y1, long x2, long y2) => Midpoint(x1, y1, x2, y2);
+        public static (float X, float Y) Midpoint((float X, float Y) a, (float X, float Y) b) => Midpoint(a.X, a.Y, b.X, b.Y);
+        public static (float X, float Y) Midpoint((float X, float Y) a, float x1, float y1) => Midpoint(a.X, a.Y, x1, y1);
+        public static (float X, float Y) Midpoint(float x1, float y1, float x2, float y2) => ((x1 + x2) / 2, (y1 + y2) / 2);
+
+        /// <summary>
+        /// Finds the position in the group which is closest to the target position
+        /// </summary>
+        /// <typeparam name="T">IPosition</typeparam>
+        /// <param name="list">group of positions to compare</param>
+        /// <param name="target">position to compare against</param>
+        /// <returns></returns>
+        public static T NearestTo<T>(this IEnumerable<T> list, T target) where T : IPosition
+        {
+            float? minDistance = null;
+            T minObject = default;
+            foreach (var obj in list)
+            {
+                //Don't need to compare actual distances (which require a Math.Sqrt call)
+                var distance = obj.DistanceSquared(target);
+                if (!minDistance.HasValue)
+                {
+                    minDistance = distance;
+                    minObject = obj;
+                }
+                else
+                {
+                    minDistance = Min(minDistance.Value, distance);
+                    minObject = obj;
+                }
+            }
+            return minObject;
+        }
+
         #endregion
 
         public static float EquilateralAltitude(float _sideLength) => (float)(Math.Sqrt(3) / 2 * _sideLength);
