@@ -230,6 +230,7 @@ namespace Basics
         }
 
         private static Random random = new Random();
+        /// <returns>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</returns>
         public static double RandomDouble() => random.NextDouble();
         public static int RandomInt() => random.Next();
         public static int RandomInt(int _max) => random.Next(0, _max);
