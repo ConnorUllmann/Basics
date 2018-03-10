@@ -53,6 +53,7 @@ namespace Basics
             if(Inside(_x, _y))
                 objects[_x][_y] = o;
         }
+        public void Set(T o, Rectangle _r) => Set(o, _r.X, _r.Y, _r.W, _r.H);
         public void Set(T o, float _x, float _y, float _w, float _h)
         {
             int x_s = Utils.Clamp((int)Math.Floor(_x), 0, Width - 1);
@@ -71,15 +72,16 @@ namespace Basics
                 return default(T);
             return objects[_x][_y];
         }
+        public List<T> Get(Rectangle _r) => Get(_r.X, _r.Y, _r.W, _r.H);
         public List<T> Get(float _x, float _y, float _w, float _h)
         {
             if (_w <= 0 || _h <= 0)
                 return new List<T>();
 
-            int x_s = (int)Math.Floor(_x);
-            int y_s = (int)Math.Floor(_y);
-            int x_f = (int)Math.Floor(_x + _w);
-            int y_f = (int)Math.Floor(_y + _h);
+            int x_s = Utils.Clamp((int)Math.Floor(_x), 0, Width-1);
+            int y_s = Utils.Clamp((int)Math.Floor(_y), 0, Height-1);
+            int x_f = Utils.Clamp((int)Math.Floor(_x + _w), 0, Width-1);
+            int y_f = Utils.Clamp((int)Math.Floor(_y + _h), 0, Height-1);
 
             if (x_f < 0 || y_f < 0 || x_s >= Width || y_s >= Height || x_s > x_f || y_s > y_f)
                 return new List<T>();

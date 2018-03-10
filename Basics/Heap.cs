@@ -17,13 +17,7 @@ namespace Basics
             elements = new List<T>();
         }
 
-        public new string ToString()
-        {
-            var s = "";
-            for(var i = 0; i < elements.Count; i++)
-                s += elements[i] + (i < elements.Count - 1 ? " " : "");
-            return s;
-        }
+        public new string ToString() => string.Join(" ", elements);
 
         public bool Contains(T element) => elements.Contains(element);
 
@@ -46,10 +40,7 @@ namespace Basics
             Fix();
         }
 
-        public bool Empty()
-        {
-            return elements.Count <= 0;
-        }
+        public bool Empty() => elements.Count <= 0;
 
         public T Pop()
         {
@@ -62,13 +53,7 @@ namespace Basics
             return default(T);
         }
 
-        public T Top
-        {
-            get
-            {
-                return elements.Count > 0 ? elements[0] : default(T);
-            }
-        }
+        public T Top => elements.Count > 0 ? elements.First() : default;
 
         public void Fix()
         {
