@@ -20,7 +20,7 @@ namespace Basics
     {
         private class PathTile<T> : IComparable where T : ISolidTile
         {
-            private Grid<T> grid;
+            private readonly Grid<T> grid;
             public int x;
             public int y;
             public T Object => grid.Get(x, y);
@@ -59,7 +59,7 @@ namespace Basics
 
         }
 
-        private class PathMap<T> where T : ISolidTile
+        public class PathMap<T> where T : ISolidTile
         {
             private DistanceEstimationAlgorithm distanceType;
             private bool canMoveDiagonally;
@@ -106,6 +106,14 @@ namespace Basics
             
             private float Distance(PathTile<T> a, PathTile<T> b) => Distance(a.x, a.y, b.x, b.y);
 
+            /// <summary>
+            /// Finds the shortest path from the start point to the target point on the grid
+            /// </summary>
+            /// <param name="xstart">x-position of start point on grid</param>
+            /// <param name="ystart">y-position of start point on grid</param>
+            /// <param name="xtarget">x-position of target point on grid</param>
+            /// <param name="ytarget">y-position of target point on grid</param>
+            /// <returns>List of tiles in the grid making up the shortest path from the start point to the end point</returns>
             public List<T> FindPath(int xstart, int ystart, int xtarget, int ytarget)
             {
                 Reset();
@@ -114,11 +122,12 @@ namespace Basics
                 var closed = new List<PathTile<T>>();
                 var path = new List<PathTile<T>>();
 
-                var first = gridPath.Get(xstart, ystart);
+                //Start at the end since we add tiles to the list in reverse order
+                var first = gridPath.Get(xtarget, ytarget);
                 if (first.Object.Solid)
                     return new List<T>();
 
-                var last = gridPath.Get(xtarget, ytarget);
+                var last = gridPath.Get(xstart, ystart);
                 if (last.Object.Solid)
                     return new List<T>();
 
@@ -173,9 +182,21 @@ namespace Basics
                 return null;
             }
         }
-        
+
+        /// <summary>
+        /// Finds the shortest path from the start point to the target point on the grid
+        /// </summary>
+        /// <param name="_grid">grid to explore</param>
+        /// <param name="xstart">x-position of start point on grid</param>
+        /// <param name="ystart">y-position of start point on grid</param>
+        /// <param name="xtarget">x-position of target point on grid</param>
+        /// <param name="ytarget">y-position of target point on grid</param>
+        /// <param name="_canMoveDiagonally">whether the pathfinding can move diagonally</param>
+        /// <param name="_distanceType">what type of distance to use (euclidean/manhattan)</param>
+        /// <returns>List of tiles in the grid making up the shortest path from the start point to the end point</returns>
         public static List<T> FindPath<T>(Grid<T> _grid, float xstart, float ystart, float xtarget, float ytarget, bool _canMoveDiagonally = true, DistanceEstimationAlgorithm _distanceType = DistanceEstimationAlgorithm.Euclidean) where T : ISolidTile =>
             FindPath(_grid, (int)xstart, (int)ystart, (int)xtarget, (int)ytarget, _canMoveDiagonally, _distanceType);
+
         public static List<T> FindPath<T>(Grid<T> _grid, int xstart, int ystart, int xtarget, int ytarget, bool _canMoveDiagonally = true, DistanceEstimationAlgorithm _distanceType = DistanceEstimationAlgorithm.Euclidean) where T : ISolidTile =>
             new PathMap<T>(_grid, _canMoveDiagonally, _distanceType).FindPath(xstart, ystart, xtarget, ytarget);
     }

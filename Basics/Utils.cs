@@ -71,6 +71,8 @@ namespace Basics
                 _set.Add(o);
         }
 
+        public static T Sample<T>(this HashSet<T> _set) => _set.Count > 0 ? _set.ElementAt(RandomInt() % _set.Count) : default;
+
         #region Clamp / Max / Min
         public static void Clamp<T>(this List<T> list, T min, T max)
         {
