@@ -107,7 +107,7 @@ namespace Basics
             private float Distance(PathTile<T> a, PathTile<T> b) => Distance(a.x, a.y, b.x, b.y);
 
             /// <summary>
-            /// Finds the shortest path from the start point to the target point on the grid
+            /// Finds the shortest path from the start point to the target point on the grid.
             /// </summary>
             /// <param name="xstart">x-position of start point on grid</param>
             /// <param name="ystart">y-position of start point on grid</param>
@@ -179,7 +179,7 @@ namespace Basics
                         }
                     }
                 }
-                return null;
+                return new List<T>();
             }
         }
 

@@ -73,6 +73,14 @@ namespace Basics
 
         public static T Sample<T>(this HashSet<T> _set) => _set.Count > 0 ? _set.ElementAt(RandomInt() % _set.Count) : default;
 
+        public static bool Any<T>(this HashSet<T> _set, Func<T, bool> _func)
+        {
+            foreach (var o in _set)
+                if (_func(o))
+                    return true;
+            return false;
+        }
+
         #region Clamp / Max / Min
         public static void Clamp<T>(this List<T> list, T min, T max)
         {
