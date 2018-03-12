@@ -6,18 +6,20 @@ using System.Runtime;
 
 namespace Basics
 {
-    public class Grid<T>
+    public class Grid<T> : IPosition
     {
-        public readonly int Width;
-        public readonly int Height;
+        private readonly Rectangle rectangle;
+
+        public float X => 0;
+        public float Y => 0;
+        public int Width => (int)rectangle.W;
+        public int Height => (int)rectangle.H;
         protected List<List<T>> objects;
 
         public Grid(int _width, int _height) : this(_width, _height, (int x, int y) => default(T)) {}
         public Grid(int _width, int _height, Func<int,int,T> _tileGenerator)
         {
-            Width = _width;
-            Height = _height;
-
+            rectangle = new Rectangle(X, Y, _width, _height);
             objects = new List<List<T>>();
             for (int x = 0; x < Width; x++)
             {
@@ -30,10 +32,9 @@ namespace Basics
         {
             if (_objects == null)
                 throw new ArgumentException("Two-dimensional list of objects is null");
-            if (_objects.Count <= 0 || !_objects.TrueForAll(x => x.Count > 0))
+            if (_objects.Count <= 0 || !_objects.TrueForAll(x => x.Count > 0) || !_objects.TrueForAll(x => x.Count == _objects[0].Count))
                 throw new ArgumentException("Invalid dimensions for two-dimensional list of objects. Cannot create Grid.");
-            Width = _objects.Count;
-            Height = _objects[0].Count;
+            rectangle = new Rectangle(X, Y, _objects.Count, _objects[0].Count);
             objects = _objects;
         }
 
@@ -41,12 +42,14 @@ namespace Basics
         {
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                    objects[x][y] = default(T);
+                    objects[x][y] = default;
         }
 
+        public bool Inside(IPosition _position) => Inside(_position.X, _position.Y);
         public bool Inside(int _x, int _y) => Inside((float)_x, _y);
         public bool Inside(float _x, float _y) => _x >= 0 && _x < Width && _y >= 0 && _y < Height;
 
+        public void Set(T o, IPosition _position) => Set(o, _position.X, _position.Y);
         public void Set(T o, float _x, float _y) => Set(o, (int)Math.Floor(_x), (int)Math.Floor(_y));
         public void Set(T o, int _x, int _y)
         {
@@ -56,15 +59,18 @@ namespace Basics
         public void Set(T o, Rectangle _r) => Set(o, _r.X, _r.Y, _r.W, _r.H);
         public void Set(T o, float _x, float _y, float _w, float _h)
         {
+            if (!rectangle.Collides(_x, _y, _w, _h))
+                return;
             int x_s = Utils.Clamp((int)Math.Floor(_x), 0, Width - 1);
             int y_s = Utils.Clamp((int)Math.Floor(_y), 0, Height - 1);
-            int x_f = Utils.Clamp((int)Math.Floor(_x + _w), 0, Width - 1);
-            int y_f = Utils.Clamp((int)Math.Floor(_y + _h), 0, Height - 1);
-            for (int x = x_s; x <= x_f; x++)
-                for (int y = y_s; y <= y_f; y++)
+            int x_f = Utils.Clamp((int)Math.Floor(_x + _w), 1, Width);
+            int y_f = Utils.Clamp((int)Math.Floor(_y + _h), 1, Height);
+            for (int x = x_s; x < x_f; x++)
+                for (int y = y_s; y < y_f; y++)
                     objects[x][y] = o;
         }
 
+        public T Get(IPosition _position) => Get(_position.X, _position.Y);
         public T Get(float _x, float _y) => Get((int)Math.Floor(_x), (int)Math.Floor(_y));
         public T Get(int _x, int _y)
         {
@@ -77,23 +83,25 @@ namespace Basics
         {
             if (_w <= 0 || _h <= 0)
                 return new List<T>();
+            if (!rectangle.Collides(_x, _y, _w, _h))
+                return new List<T>();
 
             int x_s = Utils.Clamp((int)Math.Floor(_x), 0, Width-1);
             int y_s = Utils.Clamp((int)Math.Floor(_y), 0, Height-1);
-            int x_f = Utils.Clamp((int)Math.Floor(_x + _w), 0, Width-1);
-            int y_f = Utils.Clamp((int)Math.Floor(_y + _h), 0, Height-1);
-
-            if (x_f < 0 || y_f < 0 || x_s >= Width || y_s >= Height || x_s > x_f || y_s > y_f)
+            int x_f = Utils.Clamp((int)Math.Floor(_x + _w), 1, Width);
+            int y_f = Utils.Clamp((int)Math.Floor(_y + _h), 1, Height);
+            if (x_s > x_f || y_s > y_f)
                 return new List<T>();
 
             var ret = new List<T>();
-            for (int x = x_s; x <= x_f; x++)
-                for (int y = y_s; y <= y_f; y++)
-                    if(!ret.Contains(objects[x][y]))
-                        ret.Add(objects[x][y]);
+            for (int x = x_s; x < x_f; x++)
+                for (int y = y_s; y < y_f; y++)
+                    ret.Add(objects[x][y]);
             return ret;
         }
-        
+
+        public List<T> GetNeighborsCardinal(IPosition _position) => GetNeighborsCardinal(_position.X, _position.Y);
+        public List<T> GetNeighborsCardinal(float _x, float _y) => GetNeighborsCardinal(_x, _y);
         public virtual List<T> GetNeighborsCardinal(int _x, int _y)
         {
             var neighbors = new List<T>();
@@ -103,6 +111,9 @@ namespace Basics
             if (Inside(_x, _y + 1)) { var o = Get(_x, _y + 1); if (o != null) neighbors.Add(o); }
             return neighbors;
         }
+
+        public List<T> GetNeighborsSquare(IPosition _position) => GetNeighborsSquare(_position.X, _position.Y);
+        public List<T> GetNeighborsSquare(float _x, float _y) => GetNeighborsSquare(_x, _y);
         public virtual List<T> GetNeighborsSquare(int _x, int _y)
         {
             var neighbors = new List<T>();

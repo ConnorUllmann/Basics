@@ -87,10 +87,10 @@ namespace Basics
         /// <param name="bh">height of the second rectangle</param>
         /// <returns>Whether one rectangle collides with another</returns>
         public static bool Collide(float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh)
-            => ax + aw >= bx &&
-               ay + ah >= by &&
-               ax <= bx + bw &&
-               ay <= by + bh;
+            => ax + aw > bx &&
+               ay + ah > by &&
+               ax < bx + bw &&
+               ay < by + bh;
 
         /// <summary>
         /// Checks if one rectangle collides with another rectangle.
