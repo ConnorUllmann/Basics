@@ -72,6 +72,17 @@ namespace Basics
         }
 
         public static T Sample<T>(this HashSet<T> _set) => _set.Count > 0 ? _set.ElementAt(RandomInt() % _set.Count) : default;
+        public static T Sample<T>(this T[] _set) => _set.Count() > 0 ? _set.ElementAt(RandomInt() % _set.Count()) : default;
+
+        public static T Pop<T>(this HashSet<T> _set)
+        {
+            if (_set == null || _set.Count == 0)
+                return default;
+
+            var o = _set.Sample();
+            _set.Remove(o);
+            return o;
+        }
 
         public static bool Any<T>(this HashSet<T> _set, Func<T, bool> _func)
         {
@@ -287,5 +298,7 @@ namespace Basics
             list.Reverse();
             return list;
         }
+
+        public static int Count<T>() => Enum.GetNames(typeof(T)).Length;
     }
 }
