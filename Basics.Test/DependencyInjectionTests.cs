@@ -9,19 +9,29 @@ namespace Basics.Test
     public class DependencyInjectionTests
     {
         [Fact]
-        //TODO: Occasionally fails when running tests!
         public void Container_SingleInstance_Multithreaded()
         {
             var container = new Container();
             var tasks = new List<Task>();
 
+            object lockable = new object();
+            Foo firstObj = null;
             for (var i = 0; i < 100; i++)
             {
                 var j = i;
                 tasks.Add(Task.Factory.StartNew(() =>
                 {
                     var obj = (Foo)container.Register<Foo>().As<IFoo>().SingleInstance($"single", j);
-                    Assert.Equal(0, obj.value);
+                    if (firstObj == null)
+                    {
+                        lock (lockable)
+                        {
+                            //Double check since we're inside the lock now
+                            if(firstObj == null)
+                                firstObj = obj;
+                        }
+                    }
+                    Assert.Equal(firstObj.value, obj.value);
                     System.Diagnostics.Debug.WriteLine(obj.value.ToString());
                 }));
             }

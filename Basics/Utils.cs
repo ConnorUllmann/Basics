@@ -99,6 +99,7 @@ namespace Basics
                 list[i] = Clamp(list[i], min, max);
         }
         public static T Clamp<T>(T value, T min, T max) => Max(Min(value, max), min);
+        //These might seem superfluous, but I had trouble using Math.Min/Math.Max for Clamp without them
         public static T Max<T>(params T[] values) => values.Max();
         public static T Min<T>(params T[] values) => values.Min();
         #endregion
@@ -169,6 +170,7 @@ namespace Basics
         public static (float X, float Y) Midpoint((float X, float Y) a, (float X, float Y) b) => Midpoint(a.X, a.Y, b.X, b.Y);
         public static (float X, float Y) Midpoint((float X, float Y) a, float x1, float y1) => Midpoint(a.X, a.Y, x1, y1);
         public static (float X, float Y) Midpoint(float x1, float y1, float x2, float y2) => ((x1 + x2) / 2, (y1 + y2) / 2);
+
 
         /// <summary>
         /// Finds the position in the group which is closest to the target position
