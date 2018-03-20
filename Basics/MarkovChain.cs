@@ -7,10 +7,9 @@ namespace Basics
 {
     public class MarkovChain
     {
-        protected class Link
+        protected struct Link
         {
             private List<(Link link, float weight)> linkWeights;
-
             private Action action;
 
             public Link(Action _action=null)
@@ -24,7 +23,7 @@ namespace Basics
 
             public void Execute() => action();
 
-            public Link Sample()
+            public Link? Sample()
             {
                 if (linkWeights.Count <= 0)
                     return null;
@@ -42,32 +41,32 @@ namespace Basics
             }
         }
         
-        protected Link current;
+        protected Link? current;
 
-        protected MarkovChain(Link _start=null) => current = _start;
+        protected MarkovChain(Link? _start=null) => current = _start;
 
         public void Update()
         {
             current = current?.Sample();
-            current.Execute();
+            current?.Execute();
         }
 
-        private static bool IsValid(string startName, IDictionary<string, (Action action, IDictionary<string, float> weightByName)> linkInfoByName)
+        private static bool IsValid<T>(T startName, IDictionary<T, (Action action, IDictionary<T, float> weightByName)> linkInfoByName)
         {
             //startName must be a state in the dictionary
-            var outerNames = new HashSet<string>(linkInfoByName.Keys);
+            var outerNames = new HashSet<T>(linkInfoByName.Keys);
             if (!outerNames.Contains(startName))
                 return false;
 
             //Ensure that all states specified in all weight dictionaries exist in the outer dictionary
-            var innerNames = new HashSet<string>(linkInfoByName.SelectMany(o => o.Value.weightByName.Select(i => i.Key)));
+            var innerNames = new HashSet<T>(linkInfoByName.SelectMany(o => o.Value.weightByName.Select(i => i.Key)));
             if (!innerNames.IsSubsetOf(outerNames))
                 return false;
 
             return true;
         }
 
-        public static MarkovChain FromDictionary(string startName, IDictionary<string, (Action action, IDictionary<string, float> weightByName)> linkInfoByName)
+        public static MarkovChain FromDictionary<T>(T startName, IDictionary<T, (Action action, IDictionary<T, float> weightByName)> linkInfoByName)
         {
             if (!IsValid(startName, linkInfoByName))
                 return null;
@@ -75,7 +74,7 @@ namespace Basics
             var chain = new MarkovChain();
 
             //Create all links
-            var linksByName = new Dictionary<string, Link>();
+            var linksByName = new Dictionary<T, Link>();
             foreach(var kv in linkInfoByName)
             {
                 var name = kv.Key;

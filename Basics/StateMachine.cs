@@ -23,7 +23,7 @@ namespace Basics
             state = null;
         }
 
-        public void Update() => state?.Update();
+        public virtual void Update() => state?.Update();
 
         public bool IsFinished() => state == null;
     }
