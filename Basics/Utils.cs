@@ -268,7 +268,7 @@ namespace Basics
         public static double RandomAngleRad() => RandomDouble() * Math.PI * 2;
         public static double RandomAngleDeg() => RandomDouble() * 360;
 
-        public static void AddOrUpdate<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, TValue value)
+        public static void AddOrUpdate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value)
         {
             if (!dict.ContainsKey(key))
                 dict.Add(key, value);
@@ -276,24 +276,21 @@ namespace Basics
                 dict[key] = value;
         }
 
-        public static TValue GetOrAdd<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key, Func<TValue> addFunc = null)
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, Func<TValue> addFunc = null)
         {
-            if (!dict.ContainsKey(key))
+            if (!dict.TryGetValue(key, out var value))
             {
-                if (addFunc == null)
-                    dict[key] = default(TValue);
+                if (addFunc != null)
+                    value = addFunc();
                 else
-                    dict[key] = addFunc();
+                    value = default;
+                dict.Add(key, value);
             }
-            return dict[key];
+            return value;
         }
 
-        public static TValue GetOrAddNew<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey key) where TValue : new()
-        {
-            if (!dict.ContainsKey(key))
-                dict[key] = new TValue();
-            return dict[key];
-        }
+        public static TValue GetOrAddNew<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key) where TValue : new()
+            => dict.GetOrAdd(key, () => new TValue());
 
         public static List<T> Reversed<T>(this List<T> list)
         {
