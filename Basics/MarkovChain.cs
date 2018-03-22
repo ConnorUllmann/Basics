@@ -51,25 +51,22 @@ namespace Basics
             current?.Execute();
         }
 
-        private static bool IsValid<T>(T startName, IDictionary<T, (Action action, IDictionary<T, float> weightByName)> linkInfoByName)
+        private static void CheckValidity<T>(T startName, IDictionary<T, (Action action, IDictionary<T, float> weightByName)> linkInfoByName)
         {
             //startName must be a state in the dictionary
             var outerNames = new HashSet<T>(linkInfoByName.Keys);
             if (!outerNames.Contains(startName))
-                return false;
+                throw new ArgumentException($"Cannot create MarkovChain from the given startName ({startName}) and linkInfoByName dictionary! There is no key in linkInfoByName which matches: {string.Join(", ", linkInfoByName.Keys.ToList())}");
 
             //Ensure that all states specified in all weight dictionaries exist in the outer dictionary
             var innerNames = new HashSet<T>(linkInfoByName.SelectMany(o => o.Value.weightByName.Select(i => i.Key)));
             if (!innerNames.IsSubsetOf(outerNames))
-                return false;
-
-            return true;
+                throw new ArgumentException($"Cannot create MarkovChain from the given startName ({startName}) and linkInfoByName dictionary! There is a key in a linkInfoByName item's weightByName property which does not have a corresponding key in linkInfoByName");
         }
 
         public static MarkovChain FromDictionary<T>(T startName, IDictionary<T, (Action action, IDictionary<T, float> weightByName)> linkInfoByName)
         {
-            if (!IsValid(startName, linkInfoByName))
-                return null;
+            CheckValidity(startName, linkInfoByName);
 
             var chain = new MarkovChain();
 
