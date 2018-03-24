@@ -2,16 +2,16 @@ using System;
 
 namespace Basics
 {
-    public class StateMachine
+    public class StateMachine<T> where T : IState
     {
-        private IState state;
+        protected T state;
 
-        public bool InState<T>() => state is T;
+        public bool InState<U>() where U : IState => state is U;
 
-        public void ChangeState(IState _newState)
+        public void ChangeState(T _newState)
         {
             state?.Finish();
-            if (_newState == null)
+            if (Equals(_newState, default))
                 throw new NullReferenceException("Cannot change to a null state");
             state = _newState;
             state.Start();
@@ -20,12 +20,12 @@ namespace Basics
         public void Reset()
         {
             state?.Finish();
-            state = null;
+            state = default;
         }
 
         public virtual void Update() => state?.Update();
 
-        public bool IsFinished() => state == null;
+        public bool IsFinished() => Equals(state, default);
     }
 
     // Update -- Fired every frame of the game.
