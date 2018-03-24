@@ -7,6 +7,7 @@ namespace Basics
         protected T state;
 
         public bool InState<U>() where U : IState => state is U;
+        public string CurrentStateName => state?.GetType().Name;
 
         public void ChangeState(T _newState)
         {

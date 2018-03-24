@@ -29,7 +29,8 @@ namespace Basics
 
         private static Log log;
 
-        public bool PrintToConsole;
+        public bool ShouldPrintToFile;
+        public bool ShouldPrintToConsole;
         public Level Threshold;
         public int MaxLines;
 
@@ -40,9 +41,10 @@ namespace Basics
         private Queue<(string log, Level level, DateTime time)> logs;
 
 
-        public Log(string _filepath=null, bool _printToConsole=false, Level _threshold=Level.Debug, int _maxLines=100000)
+        public Log(string _filepath=null, bool _shouldPrintToFile=false, bool _shouldPrintToConsole=true, Level _threshold=Level.Debug, int _maxLines=100000)
         {
-            PrintToConsole = _printToConsole;
+            ShouldPrintToFile = _shouldPrintToFile;
+            ShouldPrintToConsole = _shouldPrintToConsole;
             Threshold = _threshold;
             MaxLines = _maxLines;
 
@@ -58,10 +60,10 @@ namespace Basics
             if (_level < Threshold)
                 return;
 
-            if (PrintToConsole)
+            if (ShouldPrintToConsole)
                 Console.WriteLine(_line);
 
-            if (canWriteToFile)
+            if (canWriteToFile && ShouldPrintToFile)
             {
                 logs.Enqueue((_line, _level, DateTime.Now));
                 if (logs.Count >= MaxLines)
@@ -69,9 +71,10 @@ namespace Basics
             }
         }
 
+
         public void Flush()
         {
-            if (canWriteToFile)
+            if (canWriteToFile && ShouldPrintToFile)
             {
                 var filepath = $"{directory}{filename}.{DateTime.Now.ToString("yyyy-MM-dd.HH-mm-ss")}{extension}";
                 var lines = new List<string>(logs.Select(o => $"[{o.time}][{o.level}] {o.log}"));
