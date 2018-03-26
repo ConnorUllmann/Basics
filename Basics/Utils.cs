@@ -72,7 +72,21 @@ namespace Basics
         }
 
         public static T Sample<T>(this HashSet<T> _set) => _set.Count > 0 ? _set.ElementAt(RandomInt() % _set.Count) : default;
+        public static T Sample<T>(this List<T> _set) => _set.Count() > 0 ? _set.ElementAt(RandomInt() % _set.Count) : default;
         public static T Sample<T>(this T[] _set) => _set.Count() > 0 ? _set.ElementAt(RandomInt() % _set.Count()) : default;
+
+        /// <summary>
+        /// Removes the IPositions from the given _set if they are outside the given _distance from the given _position
+        /// </summary>
+        /// <typeparam name="T">IPosition type of element in the set</typeparam>
+        /// <param name="_set">set of positions</param>
+        /// <param name="_position">position against which all elements of the set will be compared</param>
+        /// <param name="_distance">distance from _position beyond which any elements of the set will be removed</param>
+        public static void RemoveWhereOutsideRange<T>(this HashSet<T> _set, IPosition _position, float _distance) where T : IPosition
+        {
+            var distanceSquared = _distance * _distance;
+            _set.RemoveWhere(o => o.DistanceSquared(_position) > distanceSquared);
+        }
 
         public static T Pop<T>(this HashSet<T> _set)
         {
