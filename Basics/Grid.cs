@@ -2,7 +2,7 @@ using System.Numerics;
 using System.Collections;
 using System.Collections.Generic;
 using System;
-using System.Runtime;
+using System.Linq;
 
 namespace Basics
 {
@@ -121,6 +121,62 @@ namespace Basics
                 for (var y = _y - 1; y <= _y + 1; y++)
                     if ((x != _x || y != _y) && Inside(x, y)) { var o = Get(x, y); if (o != null) neighbors.Add(o); }
             return neighbors;
+        }
+
+        public virtual List<(T Object, (int X, int Y) Position)> GetNeighborsAndPositionsCardinal(int _x, int _y)
+        {
+            var neighbors = new List<(T, (int X, int Y))>();
+            if (Inside(_x - 1, _y)) { var o = Get(_x - 1, _y); if (o != null) neighbors.Add((o, (_x - 1, _y))); }
+            if (Inside(_x + 1, _y)) { var o = Get(_x + 1, _y); if (o != null) neighbors.Add((o, (_x + 1, _y))); }
+            if (Inside(_x, _y - 1)) { var o = Get(_x, _y - 1); if (o != null) neighbors.Add((o, (_x, _y - 1))); }
+            if (Inside(_x, _y + 1)) { var o = Get(_x, _y + 1); if (o != null) neighbors.Add((o, (_x, _y + 1))); }
+            return neighbors;
+        }
+
+        public virtual List<(T Object, (int X, int Y) Position)> GetNeighborsAndPositionsSquare(int _x, int _y)
+        {
+            var neighbors = new List<(T, (int X, int Y))>();
+            for (var x = _x - 1; x <= _x + 1; x++)
+                for (var y = _y - 1; y <= _y + 1; y++)
+                    if ((x != _x || y != _y) && Inside(x, y)) { var o = Get(x, y); if (o != null) neighbors.Add((o, (x, y))); }
+            return neighbors;
+        }
+
+        /// <summary>
+        /// Finds all surrounding grid cells which match a fillCondition starting at a given point.
+        /// Note: the result set will contain the cell at the point (_x, _y) on the grid if it matches the condition.
+        /// </summary>
+        /// <param name="_fillCondition">condition for which all returned cells must return true</param>
+        /// <param name="_x">starting x-position of flood fill</param>
+        /// <param name="_y">starting y-position of flood fill</param>
+        /// <returns>the neighbors of the grid position (_x, _y) which match the fill condition</returns>
+        public HashSet<T> GetFloodFill(Func<T, bool> _fillCondition, int _x, int _y)
+        {
+            var set = new HashSet<T>();
+
+            var firstTile = Get(_x, _y);
+            if (firstTile == null || !_fillCondition(firstTile))
+                return set;
+
+            var all = new HashSet<(int X, int Y)>();
+            var next = new Queue<(int X, int Y)>();
+
+            set.Add(firstTile);
+            next.Enqueue((_x, _y));
+            all.Add((_x, _y));
+            while (next.Count > 0)
+            {
+                var position = next.Dequeue();
+                GetNeighborsAndPositionsCardinal(position.X, position.Y).ForEach(o =>
+                {
+                    if (!_fillCondition(o.Object) || all.Contains(o.Position))
+                        return;
+                    set.Add(o.Object);
+                    next.Enqueue(o.Position);
+                    all.Add(o.Position);
+                });
+            }
+            return set;
         }
 
         /// <summary>

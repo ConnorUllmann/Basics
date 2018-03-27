@@ -106,6 +106,12 @@ namespace Basics
             return false;
         }
 
+        public static void EnqueueRange<T>(this Queue<T> _queue, IEnumerable<T> _range)
+        {
+            foreach (var o in _queue)
+                _queue.Enqueue(o);
+        }
+
         #region Clamp / Max / Min
         public static void Clamp<T>(this List<T> list, T min, T max)
         {
