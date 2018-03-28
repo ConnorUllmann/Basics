@@ -112,6 +112,8 @@ namespace Basics
                 _queue.Enqueue(o);
         }
 
+
+
         #region Clamp / Max / Min
         public static void Clamp<T>(this List<T> list, T min, T max)
         {
@@ -228,6 +230,50 @@ namespace Basics
         public static bool IsOdd(this int value) => value % 2 != 0;
 
         #endregion
+
+        /// <summary>
+        /// Given a start position, end position, and two lengths, this will find the two positions the joint could be placed in order
+        /// to make the two lengths form a bridge from the start position to the end position (i.e. kinematics)
+        /// </summary>
+        /// <param name="startX">x-position of start of arm with length "jointLength1"</param>
+        /// <param name="startY">y-position of start of arm with length "jointLength1"</param>
+        /// <param name="targetX">x-position of end of arm with length "jointLength2"</param>
+        /// <param name="targetY">y-position of end of arm with length "jointLength2"</param>
+        /// <param name="jointLength1">length of first arm</param>
+        /// <param name="jointLength2">length of second arm</param>
+        /// <param name="bendDirectionLeft">direction the elbow should bend (relative to the vector from start to target)</param>
+        /// <returns>the point (if it exists) where the two arms should meet to reach from 
+        /// start to target bending in the specified direction</returns>
+        public static (float X, float Y)? SingleJoint(float startX, float startY, float targetX, float targetY, 
+            float jointLength1, float jointLength2, bool bendDirectionLeft=true)
+        {
+            var a = 2 * (targetX - startX);
+            var b = startX*startX + startY*startY - jointLength1*jointLength1 - targetX*targetX - targetY*targetY + jointLength2*jointLength2;
+            var c = 2 * (startY - targetY);
+
+            if (c == 0)
+                return null;
+
+            // Quadratic formula
+            var d = a * a / (c * c) + 1;
+            var e = 2 * (a * b / (c * c) - a * startY / c - startX);
+            var f = startX * startX + b * b / (c * c) - 2 * startY * b / c + startY * startY - jointLength1 * jointLength1;
+            var g = e * e - 4 * d * f; 
+
+            if (g < 0)
+                return null;
+
+            var gsq = Math.Sqrt(g);
+            var x1 = (-e + gsq) / (2 * d);
+            var y1 = (a * x1 + b) / c;
+            var sideResult = Math.Sign((targetX - startX) * (y1 - startY) - (targetY - startY) * (x1 - startX));
+            if (sideResult == (bendDirectionLeft ? 1 : -1))
+                return ((float)x1, (float)y1);
+
+            var x2 = (-e - gsq) / (2 * d);
+            var y2 = (a * x2 + b) / c;
+            return ((float)x2, (float)y2);
+        }
 
         public static void Repetitions(this int _count, Action _action)
         {
