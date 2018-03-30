@@ -111,9 +111,7 @@ namespace Basics
             foreach (var o in _queue)
                 _queue.Enqueue(o);
         }
-
-
-
+        
         #region Clamp / Max / Min
         public static void Clamp<T>(this List<T> list, T min, T max)
         {
@@ -325,10 +323,19 @@ namespace Basics
         }
 
         private static Random random = new Random();
+
         /// <returns>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</returns>
         public static double RandomDouble() => random.NextDouble();
+
         public static int RandomInt() => random.Next();
+
+        /// <param name="_max">exclusive upper bound on the returned random integer</param>
+        /// <returns>Returns and integer which is greater than or equal to zero and less than _max</returns>
         public static int RandomInt(int _max) => random.Next(0, _max);
+
+        /// <param name="_min">inclusive lower bound on the returned random integer</param>
+        /// <param name="_max">exclusive upper bound on the returned random integer</param>
+        /// <returns>Returns an integer that is greater than or equal to _min and less than _max</returns>
         public static int RandomInt(int _min, int _max) => random.Next(_min, _max);
         public static int RandomSign() => RandomInt() % 2 == 0 ? 1 : -1;
         public static double RandomAngleRad() => RandomDouble() * Math.PI * 2;
