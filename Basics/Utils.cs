@@ -302,6 +302,22 @@ namespace Basics
             str.Append(baseString);
             return str.ToString();
         }
+
+        /// <summary>
+        /// Executes the given action and returns the amount of milliseconds it took to run.
+        /// </summary>
+        /// <param name="_action">action to execute and time the duration</param>
+        /// <returns>milliseconds in duration for the given action</returns>
+        public static long MillisecondsDuration(Action _action)
+        {
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            _action();
+
+            stopwatch.Stop();
+            return stopwatch.ElapsedMilliseconds;
+        }
         
         public static void Shuffle<T>(this IList<T> list)
         {

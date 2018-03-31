@@ -178,16 +178,24 @@ namespace Basics
             }
             return set;
         }
+        
+        /// <returns>an IEnumerable containing all objects in the grid.</returns>
+        public IEnumerable<T> All()
+        {
+            for (int x = 0; x < Width; x++)
+                for (int y = 0; y < Height; y++)
+                    yield return Get(x, y);
+        }
 
         /// <summary>
         /// Use ForEachXY instead of ForEachYX if possible; it is faster.
         /// </summary>
-        /// <param name="action"></param>
+        /// <param name="action">action to execute for each object in the grid</param>
         public void ForEachXY(Action<T> action) => ForEachX(x => x.ForEach(xy => action(xy)));
         /// <summary>
         /// Use ForEachXY instead of ForEachYX if possible; it is faster.
         /// </summary>
-        /// <param name="action"></param>
+        /// <param name="action">action to execute for each object in the grid</param>
         public void ForEachYX(Action<T> action) => ForEachY(x => x.ForEach(xy => action(xy)));
         public void ForEachX(Action<List<T>> action) => objects.ForEach(x => action(x));
         public void ForEachY(Action<List<T>> action)
