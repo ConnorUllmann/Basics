@@ -147,6 +147,26 @@ namespace Basics
             H = _rectangle.H;
         }
 
+        public static Rectangle operator +(Rectangle _rectangle, IPosition _position)
+            => new Rectangle(_rectangle.X + _position.X, _rectangle.Y + _position.Y, _rectangle.W, _rectangle.H);
+        public static Rectangle operator +(Rectangle _rectangle, (float X, float Y) _position)
+            => new Rectangle(_rectangle.X + _position.X, _rectangle.Y + _position.Y, _rectangle.W, _rectangle.H);
+
+        public static Rectangle operator -(Rectangle _rectangle, IPosition _position)
+            => new Rectangle(_rectangle.X - _position.X, _rectangle.Y - _position.Y, _rectangle.W, _rectangle.H);
+        public static Rectangle operator -(Rectangle _rectangle, (float X, float Y) _position)
+            => new Rectangle(_rectangle.X - _position.X, _rectangle.Y - _position.Y, _rectangle.W, _rectangle.H);
+
+        public static Rectangle operator *(Rectangle _rectangle, float _scalar)
+            => new Rectangle(_rectangle.X * _scalar, _rectangle.Y * _scalar, _rectangle.W * _scalar, _rectangle.H * _scalar);
+        public static Rectangle operator *(Rectangle _rectangle, int _scalar)
+            => new Rectangle(_rectangle.X * _scalar, _rectangle.Y * _scalar, _rectangle.W * _scalar, _rectangle.H * _scalar);
+
+        public static Rectangle operator /(Rectangle _rectangle, float _scalar)
+            => new Rectangle(_rectangle.X / _scalar, _rectangle.Y / _scalar, _rectangle.W / _scalar, _rectangle.H / _scalar);
+        public static Rectangle operator /(Rectangle _rectangle, int _scalar)
+            => new Rectangle(_rectangle.X / _scalar, _rectangle.Y / _scalar, _rectangle.W / _scalar, _rectangle.H / _scalar);
+
         /// <summary>
         /// Generates set of coordinates corresponding to the rectangle's corners.
         /// </summary>
