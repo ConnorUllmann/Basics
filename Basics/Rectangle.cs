@@ -167,6 +167,11 @@ namespace Basics
         public static Rectangle operator /(Rectangle _rectangle, int _scalar)
             => new Rectangle(_rectangle.X / _scalar, _rectangle.Y / _scalar, _rectangle.W / _scalar, _rectangle.H / _scalar);
 
+        public static bool operator ==(Rectangle _rectangle, Rectangle _other)
+            => _rectangle.X == _other.X && _rectangle.Y == _other.Y && _rectangle.W == _other.W && _rectangle.H == _other.H;
+        public static bool operator !=(Rectangle _rectangle, Rectangle _other)
+            => !(_rectangle == _other);
+
         /// <summary>
         /// Generates set of coordinates corresponding to the rectangle's corners.
         /// </summary>
