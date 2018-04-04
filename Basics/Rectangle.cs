@@ -7,6 +7,8 @@ namespace Basics
 {
     public struct Rectangle : IPosition
     {
+        public static Rectangle Zero => new Rectangle(0, 0, 0, 0);
+
         public float X { get; set; }
         public float Y { get; set; }
         public float W;
@@ -186,6 +188,31 @@ namespace Basics
             };
 
         public override string ToString() => $"[({X}, {Y}) {W}x{H}]";
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Rectangle))
+            {
+                return false;
+            }
+
+            var rectangle = (Rectangle)obj;
+            return X == rectangle.X &&
+                   Y == rectangle.Y &&
+                   W == rectangle.W &&
+                   H == rectangle.H;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1965233216;
+            hashCode = hashCode * -1521134295 + base.GetHashCode();
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            hashCode = hashCode * -1521134295 + W.GetHashCode();
+            hashCode = hashCode * -1521134295 + H.GetHashCode();
+            return hashCode;
+        }
     }
 
     public static class RectangleExtensions
