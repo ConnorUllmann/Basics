@@ -279,9 +279,9 @@ namespace Basics
                 _action();
         }
 
-        public static void Log(string message, bool newline = true, ConsoleColor color = ConsoleColor.White)
+        public static void Log(string message, bool newline = true, ConsoleColor _color = ConsoleColor.White)
         {
-            Console.ForegroundColor = color;
+            Console.ForegroundColor = _color;
             Console.Out.Write(message + (newline ? "\n" : ""));
             Console.ForegroundColor = ConsoleColor.White;
         }

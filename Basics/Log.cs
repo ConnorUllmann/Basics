@@ -55,13 +55,13 @@ namespace Basics
             logs = new Queue<(string, Level, DateTime)>();
         }
 
-        private void insert(string _line, Level _level)
+        private void insert(string _line, Level _level, ConsoleColor _color=ConsoleColor.White)
         {
             if (_level < Threshold)
                 return;
 
             if (ShouldPrintToConsole)
-                Console.WriteLine(_line);
+                Utils.Log(_line, _color: _color);
 
             if (canWriteToFile && ShouldPrintToFile)
             {
@@ -70,7 +70,6 @@ namespace Basics
                     Flush();
             }
         }
-
 
         public void Flush()
         {
@@ -84,10 +83,10 @@ namespace Basics
             logs.Clear();
         }
 
-        public void Debug(string line) => insert(line, Level.Debug);
-        public void Info(string line) => insert(line, Level.Info);
-        public void Warning(string line) => insert(line, Level.Warning);
-        public void Error(string line) => insert(line, Level.Error);
-        public void Critical(string line) => insert(line, Level.Critical);
+        public void Debug(string line, ConsoleColor color=ConsoleColor.Gray) => insert(line, Level.Debug, color);
+        public void Info(string line, ConsoleColor color = ConsoleColor.White) => insert(line, Level.Info, color);
+        public void Warning(string line, ConsoleColor color = ConsoleColor.Yellow) => insert(line, Level.Warning, color);
+        public void Error(string line, ConsoleColor color = ConsoleColor.Red) => insert(line, Level.Error, color);
+        public void Critical(string line, ConsoleColor color = ConsoleColor.DarkRed) => insert(line, Level.Critical, color);
     }
 }
