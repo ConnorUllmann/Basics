@@ -10,8 +10,8 @@ namespace Basics
     {
         private readonly Rectangle rectangle;
 
-        public float X => 0;
-        public float Y => 0;
+        public virtual float X => 0;
+        public virtual float Y => 0;
         public int Width => (int)rectangle.W;
         public int Height => (int)rectangle.H;
         protected List<List<T>> objects;
@@ -152,6 +152,7 @@ namespace Basics
         /// <returns>the neighbors of the grid position (_x, _y) which match the fill condition</returns>
         public HashSet<T> GetFloodFill(Func<T, bool> _fillCondition, int _x, int _y)
         {
+            //TODO: Use scanline algorithm
             var set = new HashSet<T>();
 
             var firstTile = Get(_x, _y);
