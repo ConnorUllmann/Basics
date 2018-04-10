@@ -279,6 +279,8 @@ namespace Basics
                 _action();
         }
 
+        public static int ToInt(this bool _bool) => _bool ? 1 : 0;
+
         public static void Log(string message, bool newline = true, ConsoleColor _color = ConsoleColor.White)
         {
             Console.ForegroundColor = _color;
