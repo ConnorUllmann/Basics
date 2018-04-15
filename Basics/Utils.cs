@@ -74,6 +74,15 @@ namespace Basics
         public static T Sample<T>(this HashSet<T> _set) => _set.Count > 0 ? _set.ElementAt(RandomInt() % _set.Count) : default;
         public static T Sample<T>(this List<T> _set) => _set.Count() > 0 ? _set.ElementAt(RandomInt() % _set.Count) : default;
         public static T Sample<T>(this T[] _set) => _set.Count() > 0 ? _set.ElementAt(RandomInt() % _set.Count()) : default;
+        public static object Sample(this Array _set) => _set.Length > 0 ? _set.GetValue(RandomInt() % _set.Length) : default;
+        public static T Sample<T>(this Type _type) //Enums only
+        {
+            if (!typeof(T).IsEnum)
+                throw new ArgumentException($"Type {typeof(T).FullName} must be an enumerator to be sampled with this function.");
+            if (!_type.IsEnum)
+                throw new ArgumentException($"Type {_type.FullName} must be an enumerator to be sampled with this function.");
+            return (T)Enum.GetValues(typeof(T)).Sample();
+        }
 
         /// <summary>
         /// Removes the IPositions from the given _set if they are outside the given _distance from the given _position
