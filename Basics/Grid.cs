@@ -50,7 +50,7 @@ namespace Basics
         public bool Inside(float _x, float _y) => _x >= 0 && _x < Width && _y >= 0 && _y < Height;
 
         public void Set(T o, IPosition _position) => Set(o, _position.X, _position.Y);
-        public void Set(T o, float _x, float _y) => Set(o, (int)Math.Floor(_x), (int)Math.Floor(_y));
+        public void Set(T o, float _x, float _y) => Set(o, (int)_x, (int)_y);
         public void Set(T o, int _x, int _y)
         {
             if(Inside(_x, _y))
@@ -71,7 +71,7 @@ namespace Basics
         }
 
         public T Get(IPosition _position) => Get(_position.X, _position.Y);
-        public T Get(float _x, float _y) => Get((int)Math.Floor(_x), (int)Math.Floor(_y));
+        public T Get(float _x, float _y) => Get((int)_x, (int)_y);
         public T Get(int _x, int _y)
         {
             if (!Inside(_x, _y))
@@ -101,7 +101,7 @@ namespace Basics
         }
 
         public List<T> GetNeighborsCardinal(IPosition _position) => GetNeighborsCardinal(_position.X, _position.Y);
-        public List<T> GetNeighborsCardinal(float _x, float _y) => GetNeighborsCardinal(_x, _y);
+        public List<T> GetNeighborsCardinal(float _x, float _y) => GetNeighborsCardinal((int)_x, (int)_y);
         public virtual List<T> GetNeighborsCardinal(int _x, int _y)
         {
             var neighbors = new List<T>();
@@ -113,7 +113,7 @@ namespace Basics
         }
 
         public List<T> GetNeighborsSquare(IPosition _position) => GetNeighborsSquare(_position.X, _position.Y);
-        public List<T> GetNeighborsSquare(float _x, float _y) => GetNeighborsSquare(_x, _y);
+        public List<T> GetNeighborsSquare(float _x, float _y) => GetNeighborsSquare((int)_x, (int)_y);
         public virtual List<T> GetNeighborsSquare(int _x, int _y)
         {
             var neighbors = new List<T>();
