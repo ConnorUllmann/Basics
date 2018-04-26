@@ -33,6 +33,9 @@ namespace Basics
         public bool ShouldPrintToConsole;
         public Level Threshold;
         public int MaxLines;
+        public bool ShouldPrintTime=true;
+        public bool ShouldPrintLevel=false;
+        public string DateTimeFormatString = "HH:mm:ss";
 
         private string directory = null;
         private string filename = null;
@@ -59,13 +62,15 @@ namespace Basics
         {
             if (_level < Threshold)
                 return;
+            
+            var log = (_line, _level, DateTime.Now);
 
             if (ShouldPrintToConsole)
-                Utils.Log(_line, _color: _color);
+                Utils.Log(LogToString(log), _color: _color);
 
             if (canWriteToFile && ShouldPrintToFile)
             {
-                logs.Enqueue((_line, _level, DateTime.Now));
+                logs.Enqueue(log);
                 if (logs.Count >= MaxLines)
                     Flush();
             }
@@ -76,12 +81,14 @@ namespace Basics
             if (canWriteToFile && ShouldPrintToFile)
             {
                 var filepath = $"{directory}{filename}.{DateTime.Now.ToString("yyyy-MM-dd.HH-mm-ss")}{extension}";
-                var lines = new List<string>(logs.Select(o => $"[{o.time}][{o.level}] {o.log}"));
+                var lines = new List<string>(logs.Select(LogToString));
                 Directory.CreateDirectory(directory);
                 File.WriteAllLines(filepath, lines);
             }
             logs.Clear();
         }
+
+        public string LogToString((string log, Level level, DateTime time) _log) => $"{(ShouldPrintTime ? $"[{_log.time.ToString(DateTimeFormatString)}]" : "")}{(ShouldPrintLevel ? $"[{_log.level}]" : "")} {_log.log}";
 
         public void Debug(string line, ConsoleColor color=ConsoleColor.Gray) => insert(line, Level.Debug, color);
         public void Info(string line, ConsoleColor color = ConsoleColor.White) => insert(line, Level.Info, color);
