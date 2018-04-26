@@ -353,6 +353,8 @@ namespace Basics
 
         /// <returns>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</returns>
         public static double RandomDouble() => random.NextDouble();
+        /// <returns>Returns a random floating-point number that is greater than or equal to 0.0, and less than 1.0.</returns>
+        public static float RandomFloat() => (float)random.NextDouble();
 
         public static int RandomInt() => random.Next();
 
