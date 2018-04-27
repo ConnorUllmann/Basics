@@ -229,6 +229,41 @@ namespace Basics
         }
 
         #endregion
+        
+        /// <summary>
+        /// Calculates the positions of all vertices for a circle at the given position with the given radius.
+        /// </summary>
+        /// <param name="_centerX">x-position of the center of the circle</param>
+        /// <param name="_centerY">y-position of the center of the circle</param>
+        /// <param name="_radius">radius of the circle</param>
+        /// <returns>Returns the vertex positions that make up a circle at the given position with the given radius</returns>
+        public static IEnumerable<(float X, float Y)> CircleVertices(float _centerX, float _centerY, float _radius)
+        {
+            var segments = 10 * Math.Sqrt(_radius);
+            var theta = (float)(2 * Math.PI / segments);
+            var cos = (float)Math.Cos(theta);
+            var sin = (float)Math.Sin(theta);
+
+            var x = _radius;
+            var xt = 0f;
+            var y = 0f;
+            
+            for (var i = 0; i < segments; i++)
+            {
+                yield return (x + _centerX, y + _centerY);
+
+                xt = x;
+                x = cos * x - sin * y;
+                y = sin * xt + cos * y;
+            }
+        }
+        public static IEnumerable<(float X, float Y)> CircleVertices((float X, float Y) _position, float _radius) => CircleVertices(_position.X, _position.Y, _radius);
+        public static IEnumerable<((float X, float Y) a, (float X, float Y) b)> CircleSegments(float _centerX, float _centerY, float _radius)
+        {
+            var vertices = CircleVertices(_centerX, _centerY, _radius).ToList();
+            for(var i = 0; i < vertices.Count; i++)
+                yield return (vertices[i], vertices[(i + 1) % vertices.Count]);
+        }
 
         private static readonly float EquilateralAltitudeCoefficient = (float)(Math.Sqrt(3) / 2);
         public static float EquilateralAltitude(float _sideLength) => EquilateralAltitudeCoefficient * _sideLength;
@@ -369,6 +404,29 @@ namespace Basics
         public static int RandomSign() => RandomInt() % 2 == 0 ? 1 : -1;
         public static double RandomAngleRad() => RandomDouble() * Math.PI * 2;
         public static double RandomAngleDeg() => RandomDouble() * 360;
+
+        public static (float X, float Y) Rotate(this (float X, float Y) _position, float _radians, float _centerX = 0, float _centerY = 0)
+            => Rotate(_position.X, _position.Y, _radians, _centerX, _centerY);
+        public static (float X, float Y) Rotate(float _vertexX, float _vertexY, float _radians, float _centerX = 0, float _centerY = 0)
+        {
+            var diffX = _vertexX - _centerX;
+            var diffY = _vertexY - _centerY;
+            var cos = Math.Cos(_radians);
+            var sin = Math.Sin(_radians);
+            return ((float)(diffX * cos - diffY * sin) + _centerX,
+                    (float)(diffY * cos + diffX * sin) + _centerY);
+        }
+
+        public static IEnumerable<(float X, float Y)> Rotated(this IEnumerable<(float X, float Y)> _list, float _radians, float _centerX = 0, float _centerY = 0) 
+            => _radians == 0
+                ? _list
+                : _list.Select(o => o.Rotate(_radians, _centerX, _centerY));
+
+        public static void Deconstruct<TKey, TValue>(this KeyValuePair<TKey, TValue> kvp, out TKey key, out TValue val)
+        { //http://alexslover.com/Clean-foreach-loop-in-dictionaries/
+            key = kvp.Key;
+            val = kvp.Value;
+        }
 
         public static void AddOrUpdate<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value)
         {
