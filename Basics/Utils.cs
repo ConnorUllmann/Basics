@@ -460,6 +460,8 @@ namespace Basics
 
         public static int Count<T>() => Enum.GetNames(typeof(T)).Length;
 
+        public static IEnumerable<T> GetValues<T>() => Enum.GetValues(typeof(T)).Cast<T>();
+
         public static void Swap<T>(ref T x, ref T y)
         {
             var t = y;
