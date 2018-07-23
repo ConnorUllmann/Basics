@@ -9,6 +9,36 @@ namespace Basics.Test
 {
     public class UtilsTests
     {
+        public enum TestEnum
+        {
+            A = 1,
+            B = 0,
+            C = 4
+        }
+
+        [Theory]
+        [InlineData("A", TestEnum.A)]
+        [InlineData("B", TestEnum.B)]
+        [InlineData("C", TestEnum.C)]
+        [InlineData("1", TestEnum.A)]
+        [InlineData("0", TestEnum.B)]
+        [InlineData("4", TestEnum.C)]
+        [InlineData(1, TestEnum.A)]
+        [InlineData(0, TestEnum.B)]
+        [InlineData(4, TestEnum.C)]
+        [InlineData(null, null)]
+        [InlineData("", null)]
+        [InlineData("random", null)]
+        [InlineData("D", null)]
+        [InlineData("3", null)]
+        [InlineData(3, null)]
+        [InlineData(-1, null)]
+        [InlineData(5, null)]
+        public void EnumFromString(string value, TestEnum? expected)
+        {
+            Assert.Equal(expected, Utils.EnumFromString<TestEnum>(value));
+        }
+
         #region SequenceEqual
         private static List<List<int>> SequenceEqualTestList() =>
             new List<List<int>>()

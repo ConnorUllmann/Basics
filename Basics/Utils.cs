@@ -8,6 +8,19 @@ namespace Basics
 {
     public static class Utils
     {
+        public static T? EnumFromString<T>(string value) where T : struct
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return null;
+
+            if(int.TryParse(value, out int valueInt))
+                return Enum.IsDefined(typeof(T), valueInt)
+                    ? (T)Enum.Parse(typeof(T), value, false)
+                    : (T?)null;
+            return Enum.TryParse(value, out T valueEnum) 
+                ? valueEnum 
+                : (T?)null;
+        }
 
         public static bool SequenceEqual<T>(this List<List<T>> a, List<List<T>> b)
         {
@@ -78,9 +91,15 @@ namespace Basics
         public static T Sample<T>(this Type _type) //Enums only
         {
             if (!typeof(T).IsEnum)
-                throw new ArgumentException($"Type {typeof(T).FullName} must be an enumerator to be sampled with this function.");
+                throw new ArgumentException($"Type {typeof(T).FullName} must be an enum to be sampled with this function.");
             if (!_type.IsEnum)
-                throw new ArgumentException($"Type {_type.FullName} must be an enumerator to be sampled with this function.");
+                throw new ArgumentException($"Type {_type.FullName} must be an enum to be sampled with this function.");
+            return (T)Enum.GetValues(typeof(T)).Sample();
+        }
+        public static T Sample<T>() //Enums only
+        {
+            if (!typeof(T).IsEnum)
+                throw new ArgumentException($"Type {typeof(T).FullName} must be an enum to be sampled with this function.");
             return (T)Enum.GetValues(typeof(T)).Sample();
         }
 
